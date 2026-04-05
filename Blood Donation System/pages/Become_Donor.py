@@ -3,7 +3,6 @@ import requests
 from components.styles import apply_styles
 apply_styles()
 
-
 st.set_page_config(page_title="Become a Donor", page_icon="❤️")
 
 st.title("❤️ Become a Donor")
@@ -12,7 +11,7 @@ st.markdown("---")
 
 # ── Donor Registration Form ───────────────────────────────────────────────────
 with st.form("donor_form"):
-    name = st.text_input("Full Name *", placeholder="e.g. Sara Khan")
+    name = st.text_input("Full Name *", placeholder="e.g. Ravi Kumar")
 
     blood_group = st.selectbox(
         "Blood Group *",
@@ -22,7 +21,7 @@ with st.form("donor_form"):
 
     phone = st.text_input("Phone Number *", placeholder="e.g. 0300-1234567")
 
-    city = st.text_input("City *", placeholder="e.g. Lahore")
+    city = st.text_input("City *", placeholder="e.g. Hyderabad")
 
     last_donation = st.date_input(
         "Last Donation Date",
@@ -61,3 +60,5 @@ And that `st.caption` line is literally telling you what's missing 😄
 Just like `Find_Blood.py.py` needed a new FastAPI route `GET /donors/search`, this page needs a new route too:
 POST /donors/register
 '''
+from components.emergency_footer import emergency_footer
+emergency_footer()

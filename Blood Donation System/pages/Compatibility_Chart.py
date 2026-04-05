@@ -3,7 +3,6 @@ import pandas as pd
 from components.styles import apply_styles
 apply_styles()
 
-
 st.set_page_config(page_title="Compatibility Chart", page_icon="📊")
 
 st.title("📊 Blood Type Compatibility")
@@ -60,3 +59,6 @@ st.info(
     "💡 **O-** is the universal donor — their blood can be given to anyone in an emergency. "
     "**AB+** is the universal receiver — they can accept blood from any type."
 )
+
+from components.emergency_footer import emergency_footer
+emergency_footer()
