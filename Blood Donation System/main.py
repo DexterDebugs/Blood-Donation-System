@@ -13,6 +13,46 @@ from pydantic import BaseModel  ##creates a form template - tells FastAPI exactl
 from typing import Optional
 
 app = FastAPI()         ##Creates your application, like switching the server on
+
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+"""--------------------------- #AI HELPDESK--------------------------------------------------------------------------"""
+import os
+import google.generativeai as genai
+from dotenv import load_dotenv
+from pydantic import BaseModel
+
+load_dotenv()
+api_key = os.getenv("GEMINI_API_KEY")
+
+class HelpDeskRequest(BaseModel):
+    question: str
+
+@app.post("/ai/helpdesk")
+def ai_helpdesk(request: HelpDeskRequest):
+    genai.configure(api_key=api_key)
+
+    model = genai.GenerativeModel("gemini-2.5-flash")
+
+    prompt = f"""You are a helpful assistant for BloodConnect, 
+                a blood donation platform. Only answer questions 
+                related to blood donation, donor eligibility, 
+                blood compatibility, and health guidelines.
+                If asked anything unrelated, politely decline.
+
+                User question: {request.question}"""
+    
+    response = model.generate_content(prompt)
+    return {"answer": response.text}
+
+#--------------------------------------------------------------------------------------------------------------------
 @app.get("/donors/search")       ##decorator - it tells FastAPI "when someone calls this URL, run the function below it"
 
 ##without depends, we have to manually open and close a session in every function
