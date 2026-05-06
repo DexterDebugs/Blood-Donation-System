@@ -1,6 +1,7 @@
-FROM python:3.11-slim
+FROM python:3.11
 WORKDIR /app
 COPY requirements.frontend.txt .
-RUN pip install --no-cache-dir -r requirements.frontend.txtCOPY .  .
+RUN pip install --no-cache-dir -r requirements.frontend.txt
+COPY .  .
 
 CMD ["streamlit", "run", "Home.py", "--server.port=8501", "--server.address=0.0.0.0"]
