@@ -15,3 +15,5 @@ class Donor(Base):      ##Base keeps track of all your tables
     last_donation_date = Column(Date)
     is_available = Column(Boolean, default=True)
     created_at = Column(TIMESTAMP, server_default=func.now())
+    email = Column(String(100), unique=True, nullable=True)
+    password = Column(String(255), nullable= True)

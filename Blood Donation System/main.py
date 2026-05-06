@@ -5,12 +5,13 @@
 3.Queries the database → using the session from database.py and the model from models.py
 '''
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db     ##database file nunchi get_db function theesko
 from models import Donor        ##models file nunchi tables thechko
 from pydantic import BaseModel  ##creates a form template - tells FastAPI exactly what to expect (receive) 
 from typing import Optional
+import bcrypt
 
 app = FastAPI()         ##Creates your application, like switching the server on
 
@@ -82,6 +83,8 @@ class DonorCreate(BaseModel):
     blood_group: str
     phone: str
     city: str
+    email: str
+    password: str
     is_available: bool
     last_donation_date: Optional[str] = None
 
@@ -89,10 +92,50 @@ class DonorCreate(BaseModel):
 
 def register_donor(donor: DonorCreate, db: Session = Depends(get_db)):
     ##Create new donor
-    new_donor = Donor(name = donor.name, blood_group = donor.blood_group, phone = donor.phone, city = donor.city, is_available =  donor.is_available, last_donation_date = donor.last_donation_date)
+    new_donor = Donor(name = donor.name, blood_group = donor.blood_group, phone = donor.phone,
+                email = donor.email, password = bcrypt.hashpw(donor.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
+                city = donor.city, is_available =  donor.is_available, last_donation_date = donor.last_donation_date)
     ##add and commit changes
     db.add(new_donor)
     db.commit()
     db.refresh(new_donor)
     ## return the object
     return new_donor
+
+
+#-----------------------LOGIN ENDPOINT-------------------------------------------------------------------------------------
+class DonorLogin(BaseModel):
+    email: str
+    password: str
+
+@app.post("/donors/login")
+def login_donor(request: DonorLogin, db: Session = Depends(get_db)):
+    donor = db.query(Donor).filter(Donor.email == request.email).first()
+
+    if not donor:
+        raise HTTPException(status_code=404, detail="Donor not found")
+    if not bcrypt.checkpw(request.password.encode('utf-8'), donor.password.encode('utf-8')):        
+        raise HTTPException(status_code=401, detail="Incorrect password")
+    
+    return{
+        "message": f"Welcome, {donor.name}!",
+        "donor_id": donor.id,
+        "name": donor.name
+    }
+
+#------------------------DONOR DASHBOARD-----------------------------------------------------------------------------------------
+@app.get("/donors/{donor_id}")
+def get_donor(donor_id: int, db: Session = Depends(get_db)):
+    donor = db.query(Donor).filter(Donor.id == donor_id).first()
+    if not donor:
+        raise HTTPException(status_code=404, detail="Donor not found")
+    return{
+        "id": donor.id,
+        "name": donor.name,
+        "email": donor.email,
+        "blood_group": donor.blood_group,
+        "phone": donor.phone,
+        "city": donor.city,
+        "is_available": donor.is_available,
+        "last_donation_date": str(donor.last_donation_date)
+    }

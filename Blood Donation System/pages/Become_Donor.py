@@ -29,6 +29,9 @@ with st.form("donor_form"):
         help="Leave blank if you've never donated before.",
     )
 
+    email = st.text_input("Email *", placeholder="e.g. shankar@gmail.com")
+    password = st.text_input("Password *", placeholder="...", type="password")
+
     available = st.checkbox("I am currently available to donate")
 
     submitted = st.form_submit_button("✅ Submit", type="primary")
